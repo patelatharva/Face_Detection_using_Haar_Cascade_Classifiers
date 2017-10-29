@@ -242,9 +242,9 @@ class HaarFeature(unittest.TestCase):
             ref = -A + B + C - D
 
         hf = ps6.HaarFeature(feat_type, pos, size)
-        hf.evaluate(integral_image)
+        score = hf.evaluate(integral_image)
 
-        correct = np.allclose(hf.score, ref)
+        correct = np.allclose(score, ref)
 
         message = "Wrong score returned."
         self.assertTrue(correct, message)
