@@ -55,8 +55,8 @@ class VJ_Classifier:
         weights (numpy.array): observations weights array of shape (num observations, )
 
     Attributes:
-        Xtrain (numpy.array): Features.
-        ytrain (numpy.array): labels.
+        Xtrain (numpy.array): Feature scores, one for each image.
+        ytrain (numpy.array): Labels, one per image.
         weights (float): Observations weights
         threshold (float): Integral image score minimum value.
         feat (int): index of the feature that leads to minimum classification error.
@@ -73,6 +73,18 @@ class VJ_Classifier:
         self.error = 0
 
     def train(self):
+        """Trains a weak classifier that uses Haar-like feature scores.
+
+        This process finds the feature that minimizes the error as shown in
+        the Viola-Jones paper.
+
+        Once found, the following attributes are updated:
+        - feature: The column id in X.
+        - threshold: Threshold (theta) used.
+        - polarity: Sign used (another way to find the parity shown in the
+                    paper).
+        - error: lowest error (epsilon).
+        """
         signs = [1] * self.Xtrain.shape[1]
         thresholds = [0] * self.Xtrain.shape[1]
         errors = [100] * self.Xtrain.shape[1]
