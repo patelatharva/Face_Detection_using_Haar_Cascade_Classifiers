@@ -43,3 +43,74 @@ class WeakClassifier():
 
     def predict(self, x):
         return self.sign * ((x[self.feature] > self.threshold) * 2 - 1)
+
+
+class VJ_Classifier:
+    """Weak classifier for Viola Jones procedure
+
+    Args:
+        X (numpy.array): Feature scores for each image. Rows: number of images
+                         Columns: number of features.
+        y (numpy.array): Labels array of shape (num images, )
+        weights (numpy.array): observations weights array of shape (num observations, )
+
+    Attributes:
+        Xtrain (numpy.array): Features.
+        ytrain (numpy.array): labels.
+        weights (float): Observations weights
+        threshold (float): Integral image score minimum value.
+        feat (int): index of the feature that leads to minimum classification error.
+        polarity (float): Feature's sign value. Defaults to 1.
+        error (float): minimized error (epsilon)
+    """
+    def __init__(self, X, y, weights, thresh=0, feat=0, polarity=1):
+        self.Xtrain = np.float32(X)
+        self.ytrain = np.float32(y)
+        self.weights = weights
+        self.threshold = thresh
+        self.feature = feat
+        self.polarity = polarity
+        self.error = 0
+
+    def train(self):
+        signs = [1] * self.Xtrain.shape[1]
+        thresholds = [0] * self.Xtrain.shape[1]
+        errors = [100] * self.Xtrain.shape[1]
+
+        for f in range(self.Xtrain.shape[1]):
+            tmp_thresholds = self.Xtrain[:,f].copy()
+            tmp_thresholds = np.unique(tmp_thresholds)
+            tmp_thresholds.sort()
+            tmp_thresholds = [(tmp_thresholds[i]+tmp_thresholds[i+1])/2 for i in
+                              range(len(tmp_thresholds)-1)]
+
+            min_e = 10000000000000
+            for theta in tmp_thresholds:
+                for s in [1,-1]:
+                    tmp_r = self.weights * ( s*((self.Xtrain[:,f]<theta)*2-1) != self.ytrain )
+                    tmp_e = sum(tmp_r)
+                    if tmp_e < min_e:
+                        thresholds[f] = theta
+                        signs[f] = s
+                        errors[f] = tmp_e
+                        min_e = tmp_e
+
+        feat = errors.index(min(errors))
+        self.feature = feat
+        self.threshold = thresholds[feat]
+        self.polarity = signs[feat]
+        self.error = errors[feat]
+
+    def predict(self, x):
+        """Returns a predicted label.
+
+        Inequality shown in the Viola Jones paper for h_j(x).
+
+        Args:
+            x (numpy.array): Scores obtained from Haar Features, one for each
+                             feature.
+
+        Returns:
+            float: predicted label
+        """
+        return self.polarity * ((x[self.feature] < self.threshold) * 2 - 1)

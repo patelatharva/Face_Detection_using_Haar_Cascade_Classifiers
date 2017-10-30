@@ -12,8 +12,18 @@ INPUT_DIR = "input_images"
 OUTPUT_DIR = "output"
 
 YALE_FACES_DIR = os.path.join(INPUT_DIR, 'Yalefaces')
-FACES94_DIR = os.path.join(INPUT_DIR, 'faces94')
+FACES94_DIR = os.path.join(INPUT_DIR, 'faces94_backup')
+POS_DIR = os.path.join(INPUT_DIR, "pos")
+NEG_DIR = os.path.join(INPUT_DIR, "neg")
+NEG2_DIR = os.path.join(INPUT_DIR, "neg2")
 
+
+def load_images_from_dir(data_dir, size=(24, 24), ext=".png"):
+    imagesFiles = [f for f in os.listdir(data_dir) if f.endswith(ext)]
+    imgs = [np.array(cv2.imread(os.path.join(data_dir, f), 0)) for f in imagesFiles]
+    imgs = [cv2.resize(x, size) for x in imgs]
+
+    return imgs
 
 # Utility function
 def plot_eigen_faces(eig_vecs, fig_name="", visualize=False):
@@ -192,8 +202,65 @@ def part_3a():
     # TODO: Generate and save all required images
     raise NotImplementedError
 
+
+def part_4_a_b():
+
+    pos = load_images_from_dir(POS_DIR)
+    neg = load_images_from_dir(NEG_DIR)
+
+    train_pos = pos[:35]
+    train_neg = neg[:]
+    images = train_pos + train_neg
+    labels = np.array(len(train_pos) * [1] + len(train_neg) * [-1])
+
+    integral_images = ps6.convert_images_to_integral_images(images)
+    VJ = ps6.ViolaJones(train_pos, train_neg, integral_images)
+    VJ.createHaarFeatures()
+
+    VJ.train(4)
+
+    VJ.haarFeatures[VJ.classifiers[0].feature].preview(filename="ps6-4-b-1")
+    VJ.haarFeatures[VJ.classifiers[1].feature].preview(filename="ps6-4-b-2")
+
+    predictions = VJ.predict(images)
+    vj_accuracy = None
+    raise NotImplementedError
+    print "Prediction accuracy on training: {0:.2f}%".format(vj_accuracy)
+
+    neg = load_images_from_dir(NEG2_DIR)
+
+    test_pos = pos[35:]
+    test_neg = neg[:35]
+    test_images = test_pos + test_neg
+    real_labels = np.array(len(test_pos) * [1] + len(test_neg) * [-1])
+    predictions = VJ.predict(test_images)
+
+    vj_accuracy = None
+    raise NotImplementedError
+    print "Prediction accuracy on testing: {0:.2f}%".format(vj_accuracy)
+
+
+def part_4_c():
+    pos = load_images_from_dir(POS_DIR)[:20]
+    neg = load_images_from_dir(NEG_DIR)
+
+    images = pos + neg
+
+    integral_images = ps6.convert_images_to_integral_images(images)
+    VJ = ps6.ViolaJones(pos, neg, integral_images)
+    VJ.createHaarFeatures()
+
+    VJ.train(4)
+
+    image = cv2.imread(os.path.join(INPUT_DIR, "man.jpeg"), -1)
+    image = cv2.resize(image, (120, 60))
+    VJ.faceDetection(image, filename="ps4-4-c-1")
+
+
 if __name__ == "__main__":
     part_1a_1b()
     part_1c()
     part_2a()
     part_3a()
+    part_4_a_b()
+    part_4_c()
