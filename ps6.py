@@ -369,6 +369,8 @@ class ViolaJones:
 
     def train(self, num_classifiers):
 
+        # Use this scores array to train a weak classifier using VJ_Classifier
+        # in the for loop below.
         scores = np.zeros((len(self.integralImages), len(self.haarFeatures)))
         print " -- compute all scores --"
         for i, im in enumerate(self.integralImages):
