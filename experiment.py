@@ -182,8 +182,18 @@ def part_2a():
     print '(Boosting) Testing accuracy {0:.2f}%'.format(boost_accuracy)
 
 
+def part_3a():
+    """Complete the remaining parts of this section as instructed in the
+    instructions document."""
+
+    feature1 = ps6.HaarFeature((2, 1), (25, 30), (50, 100))
+    feature1.preview((200, 200), filename="ps6-3-a-1.png")
+
+    # TODO: Generate and save all required images
+    raise NotImplementedError
+
 if __name__ == "__main__":
     part_1a_1b()
     part_1c()
     part_2a()
-    # TODO: Add part 2b
+    part_3a()
