@@ -12,7 +12,7 @@ INPUT_DIR = "input_images"
 OUTPUT_DIR = "output"
 
 YALE_FACES_DIR = os.path.join(INPUT_DIR, 'Yalefaces')
-FACES94_DIR = os.path.join(INPUT_DIR, 'faces94_backup')
+FACES94_DIR = os.path.join(INPUT_DIR, 'faces94')
 POS_DIR = os.path.join(INPUT_DIR, "pos")
 NEG_DIR = os.path.join(INPUT_DIR, "neg")
 NEG2_DIR = os.path.join(INPUT_DIR, "neg2")
