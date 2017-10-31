@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 import ps6
 import os
+import cv2
 
 INPUT_DIR = "input_images/input_test"
 

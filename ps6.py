@@ -159,8 +159,8 @@ class HaarFeature:
 
     Args:
         feat_type (tuple): Feature type {(2, 1), (1, 2), (3, 1), (2, 2)}.
-        position (tuple): (x, y) position of the feature's top left corner.
-        size (tuple): Feature's (width, height)
+        position (tuple): (row, col) position of the feature's top left corner.
+        size (tuple): Feature's (height, width)
 
     Attributes:
         feat_type (tuple): Feature type.
@@ -251,7 +251,7 @@ class HaarFeature:
         and a gray area (126).
 
         The drawing methods use the class attributes position and size.
-        Keep in mind these are in (x, y) and (width, height) format.
+        Keep in mind these are in (row, col) and (height, width) format.
 
         Args:
             shape (tuple): Array numpy-style shape (rows, cols).
