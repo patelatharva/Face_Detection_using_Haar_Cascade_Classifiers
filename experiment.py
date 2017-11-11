@@ -34,7 +34,6 @@ def plot_eigen_faces(eig_vecs, fig_name="", visualize=False):
 
     for i,v in enumerate(eig_vecs):
         sp = fig.add_subplot(r,c,i+1)
-
         plt.imshow(v.reshape(32,32).real, cmap='gray')
         sp.set_title('eigenface_%i'%i)
         sp.axis('off')
@@ -64,8 +63,10 @@ def visualize_mean_face(x_mean, size, new_dims):
     Returns:
         numpy.array: Mean face uint8 2D array.
     """
-    return NotImplementedError
-
+    reshaped = np.reshape(x_mean, tuple(size))
+    normalized = cv2.normalize(reshaped, alpha=0, beta=255, norm_type=cv2.cv.CV_MINMAX, dtype=cv2.cv.CV_8UC3)
+    resized = cv2.resize(normalized, dsize=new_dims)
+    return resized
 
 def part_1a_1b():
 
@@ -259,8 +260,8 @@ def part_4_c():
 
 if __name__ == "__main__":
     part_1a_1b()
-    part_1c()
-    part_2a()
-    part_3a()
-    part_4_a_b()
-    part_4_c()
+    # part_1c()
+    # part_2a()
+    # part_3a()
+    # part_4_a_b()
+    # part_4_c()

@@ -22,8 +22,18 @@ def load_images(folder, size=(32, 32)):
     """
 
     images_files = [f for f in os.listdir(folder) if f.endswith(".png")]
-
-    raise NotImplementedError
+    X = np.ndarray(shape=(len(images_files), size[0] * size[1]))
+    y = np.ndarray(shape=(len(images_files),1))
+    index = 0
+    for image_file in images_files:
+        label = int(f[7:9])
+        image = cv2.imread(os.path.join(folder, image_file), cv2.CV_LOAD_IMAGE_GRAYSCALE)
+        scaled_image = cv2.resize(image, dsize=size)
+        flattened = scaled_image.flatten()
+        X[index] = np.float32(flattened)
+        y[index] = label
+        index += 1
+    return X, y
 
 
 def split_dataset(X, y, p):
@@ -63,7 +73,7 @@ def get_mean_face(x):
         numpy.array: Mean face.
     """
 
-    raise NotImplementedError
+    return np.mean(x, axis=0)
 
 
 def pca(X, k):
@@ -83,8 +93,15 @@ def pca(X, k):
             eigenvectors (numpy.array): 2D array with the top k eigenvectors.
             eigenvalues (numpy.array): array with the top k eigenvalues.
     """
+    M = X.shape[0]
+    mean_face = get_mean_face(X)
 
-    raise NotImplementedError
+    A = np.transpose(X - mean_face)
+    C = np.dot(A,np.transpose(A))
+    w, v = np.linalg.eigh(C)
+    desc_w = w[::-1][0:k]
+    desc_v = v[::-1][:,0:k]
+    return (desc_v, desc_w)
 
 
 class Boosting:
