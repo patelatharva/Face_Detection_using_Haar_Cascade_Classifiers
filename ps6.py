@@ -26,9 +26,10 @@ def load_images(folder, size=(32, 32)):
     y = np.ndarray(shape=(len(images_files),1))
     index = 0
     for image_file in images_files:
-        label = int(f[7:9])
-        image = cv2.imread(os.path.join(folder, image_file), cv2.CV_LOAD_IMAGE_GRAYSCALE)
-        scaled_image = cv2.resize(image, dsize=size)
+        label = int(image_file[7:9])
+        image = cv2.imread(os.path.join(folder, image_file))
+        gray_image = cv2.cvtColor(image, code=cv2.cv.CV_BGR2GRAY)
+        scaled_image = cv2.resize(gray_image, dsize=(size[0],size[1]))
         flattened = scaled_image.flatten()
         X[index] = np.float32(flattened)
         y[index] = label
@@ -57,8 +58,14 @@ def split_dataset(X, y, p):
             Xtest (numpy.array): Test data test 2D array.
             ytest (numpy.array): Test data labels.
     """
-
-    raise NotImplementedError
+    M = X.shape[0]
+    N = int(p * M)
+    permutation = np.random.permutation(M)
+    Xtrain = X[permutation[0:N]]
+    Xtest = X[permutation[N:]]
+    ytrain = y[permutation[0:N]]
+    ytest = y[permutation[N:]]
+    return (Xtrain, ytrain, Xtest, ytest)
 
 
 def get_mean_face(x):
@@ -93,14 +100,12 @@ def pca(X, k):
             eigenvectors (numpy.array): 2D array with the top k eigenvectors.
             eigenvalues (numpy.array): array with the top k eigenvalues.
     """
-    M = X.shape[0]
     mean_face = get_mean_face(X)
-
     A = np.transpose(X - mean_face)
-    C = np.dot(A,np.transpose(A))
+    C = np.dot(A,A.T)
     w, v = np.linalg.eigh(C)
-    desc_w = w[::-1][0:k]
-    desc_v = v[::-1][:,0:k]
+    desc_w = w[::-1][:k]
+    desc_v = v[:,::-1][:,:k]
     return (desc_v, desc_w)
 
 

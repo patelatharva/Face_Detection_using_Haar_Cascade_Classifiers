@@ -34,6 +34,7 @@ def plot_eigen_faces(eig_vecs, fig_name="", visualize=False):
 
     for i,v in enumerate(eig_vecs):
         sp = fig.add_subplot(r,c,i+1)
+        # v = cv2.normalize(v, alpha=0, beta=255, norm_type=cv2.cv.CV_MINMAX, dtype=cv2.cv.CV_8UC3)
         plt.imshow(v.reshape(32,32).real, cmap='gray')
         sp.set_title('eigenface_%i'%i)
         sp.axis('off')
@@ -65,7 +66,7 @@ def visualize_mean_face(x_mean, size, new_dims):
     """
     reshaped = np.reshape(x_mean, tuple(size))
     normalized = cv2.normalize(reshaped, alpha=0, beta=255, norm_type=cv2.cv.CV_MINMAX, dtype=cv2.cv.CV_8UC3)
-    resized = cv2.resize(normalized, dsize=new_dims)
+    resized = cv2.resize(normalized, dsize=(new_dims[0], new_dims[1]))
     return resized
 
 def part_1a_1b():
@@ -89,8 +90,8 @@ def part_1a_1b():
 
 
 def part_1c():
-    p = 0.5  # Select a split percentage value
-    k = 5  # Select a value for k
+    p = 0.6  # Select a split percentage value
+    k = 100  # Select a value for k
 
     size = [32, 32]
     X, y = ps6.load_images(YALE_FACES_DIR, size)
