@@ -236,7 +236,16 @@ class HaarFeature:
             numpy.array: Image containing a Haar feature. (uint8).
         """
 
-        raise NotImplementedError
+        image = np.zeros(shape=shape)
+        feature_height = self.size[0]
+        addition_height = feature_height/2
+        subtraction_height = feature_height - addition_height
+        feature_width = self.size[1]
+        y = self.position[0]
+        x = self.position[1]
+        image[y:y+addition_height, x:x+feature_width] = 255
+        image[y+addition_height:y + feature_height, x:x + feature_width] = 126
+        return image
 
     def _create_two_vertical_feature(self, shape):
         """Create a feature of type (1, 2).
@@ -249,8 +258,16 @@ class HaarFeature:
         Returns:
             numpy.array: Image containing a Haar feature. (uint8).
         """
+        image = np.zeros(shape)
+        feature_height = self.size[0]
+        feature_width = self.size[1]
+        addition_width = feature_width/2
+        y = self.position[0]
+        x = self.position[1]
+        image[y : y+feature_height, x : x+addition_width] = 255
+        image[y : y+feature_height, x + addition_width : x + feature_width] = 126
+        return image
 
-        raise NotImplementedError
 
     def _create_three_horizontal_feature(self, shape):
         """Create a feature of type (3, 1).
@@ -263,8 +280,17 @@ class HaarFeature:
         Returns:
             numpy.array: Image containing a Haar feature. (uint8).
         """
+        image = np.zeros(shape)
+        feature_height = self.size[0]
+        feature_width = self.size[1]
+        strip_height = feature_height/3
+        y = self.position[0]
+        x = self.position[1]
+        image[y:y + strip_height, x:x + feature_width] = 255
+        image[y + strip_height:y + 2*strip_height, x:x + feature_width] = 126
+        image[y + 2*strip_height:y + feature_height, x:x + feature_width] = 255
+        return image
 
-        raise NotImplementedError
 
     def _create_three_vertical_feature(self, shape):
         """Create a feature of type (1, 3).
@@ -277,8 +303,17 @@ class HaarFeature:
         Returns:
             numpy.array: Image containing a Haar feature. (uint8).
         """
+        image = np.zeros(shape)
+        feature_height = self.size[0]
+        feature_width = self.size[1]
+        strip_width = feature_width / 3
+        y = self.position[0]
+        x = self.position[1]
+        image[y:y + feature_height, x:x + strip_width] = 255
+        image[y:y + feature_height, x + strip_width:x + 2 * strip_width] = 126
+        image[y:y + feature_height, x + 2*strip_width:x + feature_width] = 255
+        return image
 
-        raise NotImplementedError
 
     def _create_four_square_feature(self, shape):
         """Create a feature of type (2, 2).
@@ -291,8 +326,27 @@ class HaarFeature:
         Returns:
             numpy.array: Image containing a Haar feature. (uint8).
         """
+        image = np.zeros(shape)
+        feature_height = self.size[0]
+        feature_width = self.size[1]
+        strip_width = feature_width / 2
+        strip_height = feature_height/2
+        y = self.position[0]
+        x = self.position[1]
 
-        raise NotImplementedError
+        #top left black
+        image[y:y + strip_height, x:x + strip_width] = 126
+
+        #top right white
+        image[y:y + strip_height, x + strip_width:x + feature_width] = 255
+
+        #bottom left white
+        image[y + strip_height:y + feature_height, x:x + strip_width] = 255
+
+        #bottom right black
+        image[y + strip_height:y + feature_height, x + strip_width:x + feature_width] = 126
+        return image
+
 
     def preview(self, shape=(24, 24), filename=None):
         """Return an image with a Haar-like feature of a given type.
@@ -357,9 +411,89 @@ class HaarFeature:
             float: Score value.
         """
 
-        raise NotImplementedError
+
+        def calc_sum(integral_image, area):
+            position = area[0]
+            size = area[1]
+            extended_ii = cv2.copyMakeBorder(integral_image, top=1, bottom=0, left=1, right=0,
+                                             borderType=cv2.BORDER_REPLICATE)
+            mi_1 = (position[0], position[1])
+            mi_2 = (position[0], position[1] + size[1])
+            mi_3 = (position[0] + size[0], position[1])
+            mi_4 = (position[0] + size[0], position[1] + size[1])
+            sum_rect = extended_ii[mi_4[0], mi_4[1]] - extended_ii[mi_2[0],mi_2[1]] - extended_ii[mi_3[0], mi_3[1]] + extended_ii[mi_1[0], mi_1[1]]
+            return sum_rect
+
+        extended_ii = cv2.copyMakeBorder(ii, top=0, bottom=self.size[0], left=0, right=self.size[1],
+                                         borderType=cv2.BORDER_CONSTANT, value=0)
+        if self.feat_type == (2, 1):  # two_horizontal
+            upper_add = (self.position,
+                         (self.size[0]/2, self.size[1]))
+
+            lower_sub = ((self.position[0] + self.size[0]/2, self.position[1]),
+                         (self.size[0]/2, self.size[1]))
+            score = calc_sum(extended_ii, upper_add) - calc_sum(extended_ii, lower_sub)
 
 
+        if self.feat_type == (1, 2):  # two_vertical
+            left_add = (
+                self.position,
+                (self.size[0], self.size[1]/2)
+            )
+            right_sub = (
+                (self.position[0], self.position[1] + self.size[1]/2),
+                (self.size[0], self.size[1]/2)
+            )
+            score = calc_sum(extended_ii, left_add) - calc_sum(extended_ii, right_sub)
+
+
+        if self.feat_type == (3, 1):  # three_horizontal
+            upper_add = (
+                self.position,
+                (self.size[0]/3, self.size[1])
+            )
+            middle_sub = (
+                (self.position[0] + self.size[0]/3, self.position[1]),
+                (self.size[0]/3, self.size[1])
+            )
+            lower_add = (
+                (self.position[0] + 2*self.size[0]/3, self.position[1]),
+                (self.size[0]/3, self.size[1])
+            )
+            score = calc_sum(extended_ii, upper_add) - calc_sum(extended_ii, middle_sub) + calc_sum(extended_ii, lower_add)
+        if self.feat_type == (1, 3):  # three_vertical
+            left_add = (
+                self.position,
+                (self.size[0], self.size[1]/3)
+            )
+            middle_sub = (
+                (self.position[0], self.position[1] + self.size[1]/3),
+                (self.size[0], self.size[1]/3)
+            )
+            right_add = (
+                (self.position[0], self.position[1] + 2*self.size[1]/3),
+                (self.size[0], self.size[1]/3)
+            )
+            score = calc_sum(extended_ii, left_add) - calc_sum(extended_ii, middle_sub) + calc_sum(extended_ii, right_add)
+        if self.feat_type == (2, 2):  # four_square
+            top_left_sub = (
+                self.position,
+                (self.size[0]/2, self.size[1]/2)
+            )
+            top_right_add = (
+                (self.position[0], self.position[1] + self.size[1]/2),
+                (self.size[0] / 2, self.size[1] / 2)
+            )
+            bottom_left_add = (
+                (self.position[0] + self.size[0]/2, self.position[1]),
+                (self.size[0] / 2, self.size[1] / 2)
+            )
+            bottom_right_sub = (
+                (self.position[0] + self.size[0]/2, self.position[1] + self.size[1]/2),
+                (self.size[0] / 2, self.size[1] / 2)
+            )
+            score = -calc_sum(extended_ii, top_left_sub) + calc_sum(extended_ii, top_right_add) + calc_sum(extended_ii, bottom_left_add) - calc_sum(extended_ii, bottom_right_sub)
+        return score
 def convert_images_to_integral_images(images):
     """Convert a list of grayscale images to integral images.
 
@@ -370,7 +504,15 @@ def convert_images_to_integral_images(images):
         (list): List of integral images.
     """
 
-    raise NotImplementedError
+    integral_images = []
+    for image in images:
+        integral_image = np.ndarray(shape=image.shape)
+        integral_image[0,0] = image[0,0]
+        for y in range(image.shape[0]):
+            for x in range(image.shape[1]):
+                integral_image[y,x] = sum(sum(image[:y+1, :x+1]))
+        integral_images.append(integral_image)
+    return integral_images
 
 
 class ViolaJones:

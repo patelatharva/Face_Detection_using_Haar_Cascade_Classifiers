@@ -167,6 +167,11 @@ class HaarFeature(unittest.TestCase):
             hf_img = hf.preview((50, 50))
 
             correct = np.allclose(hf_img, ref_img)
+            cv2.imshow("hf_img", hf_img.astype("uint8"))
+            cv2.imshow("ref_img", ref_img.astype("uint8"))
+
+            cv2.imshow("diff", np.fabs(hf_img - ref_img).astype("uint8"))
+            cv2.waitKey(0)
             message = "Output image does not match the reference solution."
             self.assertTrue(correct, message)
 

@@ -205,9 +205,18 @@ def part_3a():
     feature1 = ps6.HaarFeature((2, 1), (25, 30), (50, 100))
     feature1.preview((200, 200), filename="ps6-3-a-1.png")
 
-    # TODO: Generate and save all required images
-    raise NotImplementedError
 
+    feature2 = ps6.HaarFeature((1,2), (10,25), (50, 150))
+    feature2.preview((200, 200), filename="ps6-3-a-2.png")
+
+    feature3 = ps6.HaarFeature((3,1), (50,50), (100,50))
+    feature3.preview((200, 200), filename="ps6-3-a-3.png")
+
+    feature4 = ps6.HaarFeature((1,3), (50, 125), (100, 50))
+    feature4.preview((200, 200), filename="ps6-3-a-4.png")
+
+    feature5 = ps6.HaarFeature((2,2), (50, 25), (100, 150))
+    feature5.preview((200, 200), filename="ps6-3-a-5.png")
 
 def part_4_a_b():
 
@@ -264,9 +273,9 @@ def part_4_c():
 
 
 if __name__ == "__main__":
-    part_1a_1b()
-    part_1c()
-    part_2a()
-    # part_3a()
+    # part_1a_1b()
+    # part_1c()
+    # part_2a()
+    part_3a()
     # part_4_a_b()
     # part_4_c()
