@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 import os
-
+import math
 from helper_classes import WeakClassifier, VJ_Classifier
 
 
@@ -23,7 +23,7 @@ def load_images(folder, size=(32, 32)):
 
     images_files = [f for f in os.listdir(folder) if f.endswith(".png")]
     X = np.ndarray(shape=(len(images_files), size[0] * size[1]))
-    y = np.ndarray(shape=(len(images_files),1))
+    y = np.ndarray(shape=(len(images_files)))
     index = 0
     for image_file in images_files:
         label = int(image_file[7:9])
@@ -145,8 +145,26 @@ class Boosting:
 
     def train(self):
         """Implement the for loop shown in the problem set instructions."""
-        raise NotImplementedError
-
+        for iteration in range(self.num_iterations):
+            self.weights /= sum(self.weights)
+            h = WeakClassifier(self.Xtrain, self.ytrain, self.weights)
+            h.train()
+            self.weakClassifiers.append(h)
+            mistaken_indices = []
+            y_pred = np.zeros(shape=(self.Xtrain.shape[0]))
+            for row in range(self.Xtrain.shape[0]):
+                image = self.Xtrain[row]
+                y_pred[row] = h.predict(image)
+                if y_pred[row] != self.ytrain[row]:
+                    mistaken_indices.append(row)
+            e = sum(self.weights[mistaken_indices])
+            alpha = 0.5*math.log((1-e)/e)
+            self.alphas.append(alpha)
+            if e > self.eps:
+                for i in range(self.weights.shape[0]):
+                    self.weights[i] = self.weights[i] * math.exp(-self.ytrain[i]*alpha*y_pred[i])
+            else:
+                break
     def evaluate(self):
         """Return the number of correct and incorrect predictions.
 
@@ -159,12 +177,16 @@ class Boosting:
                 correct (int): Number of correct predictions.
                 incorrect (int): Number of incorrect predictions.
         """
-        raise NotImplementedError
+        y_pred = self.predict(self.Xtrain)
+        outcome = y_pred == self.ytrain
+        correct = sum(outcome)
+        incorrect = self.Xtrain.shape[0] - correct
+        return (correct, incorrect)
 
     def predict(self, X):
         """Return predictions for a given array of observations.
 
-        Use the alpha values stored in self.aphas and the weak classifiers
+        Use the alpha values stored in self.alphas and the weak classifiers
         stored in self.weakClassifiers.
 
         Args:
@@ -173,7 +195,14 @@ class Boosting:
         Returns:
             numpy.array: Predictions, one for each row in X.
         """
-        raise NotImplementedError
+        results = np.zeros(shape=(X.shape[0]))
+        for i in range(results.shape[0]):
+            predictions = []
+            for j in range(len(self.alphas)):
+                y_pred = self.alphas[j] * self.weakClassifiers[j].predict(X[i])
+                predictions.append(y_pred)
+            results[i] = 1 if sum(predictions) > 0 else -1
+        return results
 
 
 class HaarFeature:

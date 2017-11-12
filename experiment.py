@@ -147,12 +147,13 @@ def part_2a():
 
     p = 0.8
     Xtrain, ytrain, Xtest, ytest = ps6.split_dataset(X, y, p)
-
+    total = ytrain.shape[0]
     # Picking random numbers
     rand_y = np.random.choice([-1, 1], (len(ytrain)))
     # TODO: find which of these labels match ytrain and report its accuracy
-    rand_accuracy = None
-    raise NotImplementedError
+    correct = sum(rand_y == ytrain)
+    rand_accuracy = 100 * correct/total
+
     print '(Random) Training accuracy: {0:.2f}%'.format(rand_accuracy)
 
     # Using Weak Classifier
@@ -161,8 +162,9 @@ def part_2a():
     wk_clf.train()
     wk_results = [wk_clf.predict(x) for x in Xtrain]
     # TODO: find which of these labels match ytrain and report its accuracy
-    wk_accuracy = None
-    raise NotImplementedError
+    correct = sum(wk_results == ytrain)
+    wk_accuracy = 100 * correct/total
+
     print '(Weak) Training accuracy {0:.2f}%'.format(wk_accuracy)
 
     num_iter = 5
@@ -174,23 +176,25 @@ def part_2a():
     print '(Boosting) Training accuracy {0:.2f}%'.format(boost_accuracy)
 
     # Picking random numbers
+    total = len(ytest)
     rand_y = np.random.choice([-1, 1], (len(ytest)))
     # TODO: find which of these labels match ytest and report its accuracy
-    rand_accuracy = None
-    raise NotImplementedError
+    correct = sum(rand_y == ytest)
+    rand_accuracy = 100 * correct/ total
     print '(Random) Testing accuracy: {0:.2f}%'.format(rand_accuracy)
 
     # Using Weak Classifier
     wk_results = [wk_clf.predict(x) for x in Xtest]
     # TODO: find which of these labels match ytest and report its accuracy
-    wk_accuracy = None
-    raise NotImplementedError
+
+    correct = sum(wk_results == ytest)
+    wk_accuracy = 100 * correct /total
     print '(Weak) Testing accuracy {0:.2f}%'.format(wk_accuracy)
 
     y_pred = boost.predict(Xtest)
     # TODO: find which of these labels match ytest and report its accuracy
-    boost_accuracy = None
-    raise NotImplementedError
+    correct = sum(y_pred == ytest)
+    boost_accuracy = 100 * correct / total
     print '(Boosting) Testing accuracy {0:.2f}%'.format(boost_accuracy)
 
 
@@ -261,8 +265,8 @@ def part_4_c():
 
 if __name__ == "__main__":
     part_1a_1b()
-    # part_1c()
-    # part_2a()
+    part_1c()
+    part_2a()
     # part_3a()
     # part_4_a_b()
     # part_4_c()
