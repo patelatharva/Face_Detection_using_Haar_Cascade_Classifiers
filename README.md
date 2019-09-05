@@ -4,7 +4,7 @@
 
 In this project, I implemented face recognition using PCA, (Ada)Boosting, and the Viola-Jones algorithm.
 
-Majority of the code that I wrote for completing the assignment is in the files: `experiment.py` and `ps06.py`. 
+Majority of the code that I wrote for completing the assignment is in the files: `experiment.py` and `ps6.py`. 
 
 Through this project and other projects that I completed as part of Computer Vision course, I mastered **how to vectorize most of the operations in Numpy** by carefully using the concept of broadcasting **without using for loops** in the code to run the algorithms in realtime, so that they can be used in solving real world projects in practical timeframe.
 
